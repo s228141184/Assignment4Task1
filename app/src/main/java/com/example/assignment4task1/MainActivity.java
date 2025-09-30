@@ -2,9 +2,8 @@ package com.example.assignment4task1;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.widget.GridLayout;
+import androidx.gridlayout.widget.GridLayout;
 import android.widget.TextView;
-
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -28,32 +27,31 @@ public class MainActivity extends AppCompatActivity {
         });
         gridLayout = findViewById(R.id.grid);
 
-        // Generate and display the Sudoku board
         generateAndDisplaySudoku();
     }
     private void generateAndDisplaySudoku() {
         SudokuGenerator generator = new SudokuGenerator();
         SudokuGrid grid = generator.generate();
 
-        // Clear grid first if it had old children
         gridLayout.removeAllViews();
 
-        // Convert dp to pixels
         int cellSizePx = (int) (CELL_SIZE_DP * getResources().getDisplayMetrics().density);
 
         for (int row = 0; row < SIZE; row++) {
             for (int col = 0; col < SIZE; col++) {
                 TextView cell = new TextView(this);
 
-                // Get the value from the generated grid
                 Integer value = grid.getValue(row, col);
                 cell.setText(String.valueOf(value));
                 cell.setTextSize(18);
                 cell.setTextColor(Color.BLACK);
-                cell.setBackgroundColor(Color.LTGRAY);
+                if ((row / 3 + col / 3) % 2 == 0) {
+                    cell.setBackgroundColor(Color.WHITE);
+                } else {
+                    cell.setBackgroundColor(Color.LTGRAY);
+                }
                 cell.setGravity(android.view.Gravity.CENTER);
 
-                // Add some border spacing
                 GridLayout.LayoutParams params = new GridLayout.LayoutParams();
                 params.width = cellSizePx;
                 params.height = cellSizePx;

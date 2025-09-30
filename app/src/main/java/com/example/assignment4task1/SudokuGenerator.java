@@ -1,5 +1,7 @@
 package com.example.assignment4task1;
 
+import android.widget.Toast;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -20,11 +22,9 @@ public class SudokuGenerator {
     public SudokuGrid generate() {
         initializePossibilities();
 
-        // Repeat the WFC steps until the grid is fully collapsed
         while (true) {
             int[] cell = findCellWithLeastPossibilities();
             if (cell == null) {
-                // All cells are collapsed (only one possibility), generation done
                 break;
             }
 
@@ -33,20 +33,16 @@ public class SudokuGenerator {
 
             List<Integer> options = new ArrayList<>(possibilities[row][col]);
             if (options.isEmpty()) {
-                // Contradiction occurred
                 System.out.println("Contradiction occurred. Restarting...");
-                return generate(); // Retry from scratch
+                return generate();
             }
 
-            // Randomly pick one value and collapse this cell
             int chosenValue = options.get(random.nextInt(options.size()));
             possibilities[row][col] = new HashSet<>(Collections.singleton(chosenValue));
 
-            // Propagate constraints
             if (!propagate(row, col, chosenValue)) {
-                // Contradiction occurred during propagation
                 System.out.println("Contradiction during propagation. Restarting...");
-                return generate(); // Retry from scratch
+                return generate();
             }
         }
 
@@ -74,8 +70,6 @@ public class SudokuGenerator {
             }
         }
     }
-
-    // Find the cell with the fewest possibilities (>1)
     private int[] findCellWithLeastPossibilities() {
         int minSize = Integer.MAX_VALUE;
         List<int[]> candidates = new ArrayList<>();
