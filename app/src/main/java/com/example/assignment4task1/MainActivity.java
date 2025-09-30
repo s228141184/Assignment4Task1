@@ -3,7 +3,11 @@ package com.example.assignment4task1;
 import android.graphics.Color;
 import android.os.Bundle;
 import androidx.gridlayout.widget.GridLayout;
+
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -12,6 +16,8 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class MainActivity extends AppCompatActivity {
     private GridLayout gridLayout;
+    private Button btnGenerateGrid;
+
     private static final int SIZE = 9;
     private static final int CELL_SIZE_DP = 35;
 
@@ -26,12 +32,18 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
         gridLayout = findViewById(R.id.grid);
-
-        generateAndDisplaySudoku();
+        btnGenerateGrid = findViewById(R.id.btnGenerateGrid);
+        btnGenerateGrid.setOnClickListener(v->generateAndDisplaySudoku());
     }
     private void generateAndDisplaySudoku() {
+        btnGenerateGrid.setText("re-Generate Sudoku");
         SudokuGenerator generator = new SudokuGenerator();
         SudokuGrid grid = generator.generate();
+        if(grid==null){
+            Toast.makeText(this, "Unable to generate grid reason: " + generator.getFailureReason() , Toast.LENGTH_SHORT).show();
+            gridLayout.removeAllViews();
+            return;
+        }
 
         gridLayout.removeAllViews();
 

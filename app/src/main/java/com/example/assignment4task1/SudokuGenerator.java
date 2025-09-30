@@ -14,6 +14,7 @@ public class SudokuGenerator {
     private Set<Integer>[][] possibilities;
     private SudokuGrid grid;
     private Random random = new Random();
+    private String failureReason = null;
 
     public SudokuGenerator() {
         grid = new SudokuGrid();
@@ -33,20 +34,20 @@ public class SudokuGenerator {
 
             List<Integer> options = new ArrayList<>(possibilities[row][col]);
             if (options.isEmpty()) {
-                System.out.println("Contradiction occurred. Restarting...");
-                return generate();
+                failureReason = "Cell (" + row + "," + col + ") had 0 possibilities. Contradiction.";
+                return null;
             }
 
             int chosenValue = options.get(random.nextInt(options.size()));
             possibilities[row][col] = new HashSet<>(Collections.singleton(chosenValue));
 
-            if (!propagate(row, col, chosenValue)) {
-                System.out.println("Contradiction during propagation. Restarting...");
-                return generate();
+            if (!checkConstrain(row, col, chosenValue)) {
+                failureReason = "Propagation failed after assigning value " + chosenValue +
+                        " to cell (" + row + "," + col + ").";
+                return null;
             }
         }
 
-        // Fill the final grid
         for (int row = 0; row < SIZE; row++) {
             for (int col = 0; col < SIZE; col++) {
                 int value = possibilities[row][col].iterator().next();
@@ -57,7 +58,6 @@ public class SudokuGenerator {
         return grid;
     }
 
-    @SuppressWarnings("unchecked")
     private void initializePossibilities() {
         possibilities = (Set<Integer>[][]) new Set[SIZE][SIZE];
 
@@ -91,7 +91,7 @@ public class SudokuGenerator {
         return candidates.get(random.nextInt(candidates.size()));
     }
 
-    private boolean propagate(int row, int col, int value) {
+    private boolean checkConstrain(int row, int col, int value) {
         // Remove value from same row, column, and block
         for (int i = 0; i < SIZE; i++) {
             if (i != col && !removeValue(row, i, value)) return false;
@@ -120,13 +120,16 @@ public class SudokuGenerator {
                 return false; // Contradiction
             }
 
-            // If we just reduced it to a single value, we need to propagate that too
             if (cellPossibilities.size() == 1) {
                 int newValue = cellPossibilities.iterator().next();
-                return propagate(row, col, newValue);
+                return checkConstrain(row, col, newValue);
             }
         }
 
         return true;
+    }
+    public String getFailureReason(){
+        return failureReason;
+
     }
 }
